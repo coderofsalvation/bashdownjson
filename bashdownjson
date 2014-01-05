@@ -1,0 +1,81 @@
+#!/bin/bash 
+#
+# Copyright (C) 2013 Coder of Salvation 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+TMPFILE="/tmp/.bashdownjson.$(whoami)"
+SELF_PATH="$(dirname "$(readlink -f "$0")" )"
+
+feeds(){
+  find $TMPFILE* -type d &>/dev/null || return 0
+  find $TMPFILE* -type d | while read feed; do 
+    json="$(echo "$feed" | sed "s/.*$(whoami)\.//g")"
+    printf "  %-20s => %s\n" "$json" "$feed" 
+  done
+}
+
+print(){
+  JSONNAME="$1"; JSONMAXITEMS="$2"
+  PUBDATE="$(date -R)"
+  cat "$SELF_PATH/json.bashdown" | fetch 
+}
+
+printitems(){
+  JSONNAME="$1"; [[ -n $2 ]] && JSONMAXITEMS="-n$2"
+  find $TMPFILE.$JSONNAME/* | tail $JSONMAXITEMS > $TMPFILE.$JSONNAME.items
+  i=0; while read file; do 
+    (( i != 0 )) && echo ","; ((i++))
+    source "$file"; cat $SELF_PATH/jsonitem.bashdown | fetch; ((i++))
+  done < $TMPFILE.$JSONNAME.items
+}
+
+add(){
+  jsonname="$1"; title="$2"; link="$3"; dir="$TMPFILE.$jsonname"; file="$dir/$(date +%s).bash"
+  message="$(cat - )"
+  [[ ! -d "$dir" ]] && mkdir "$dir"
+  echo "MESSAGE='$message'" > "$file"
+  echo "DATE='$(date -R)'"  >> "$file"
+  echo "ID='$(date +%s)'"  >> "$file"
+  return 0
+}
+
+fetch(){
+  IFS=''; cat - | while read line; do 
+    line="$(eval "echo \"$( echo "$line" | sed 's/"/\\"/g')\"")"; # process bash in snippet
+    echo "$line"
+  done
+}
+
+reset(){
+  [[ ${#1} == "0" ]] && read -p "[!] no feed given as argument..press ctrl-c to *not* delete all feeds" flop
+  [[ -n $1 ]] && rm -rf $TMPFILE.$1* || rm -rf $TMPFILE*
+}
+
+_usage(){
+  txt='Usage: 
+
+  add:        echo '{"foo":"bar"}' | bashdownjson your.json
+  feeds:      lists all active feeds 
+  reset:      bashdownjson reset [your.json]
+  print:      bashdownjson print your.json [maxitems]
+  '; echo "$txt"; exit 1
+}
+
+if [[ "$1" == "add" ]]; then 
+  cat - | add "$2" "$3" "$4"
+  [[ -n $DEBUG ]] && find $TMPFILE*
+else
+  [[ ! -n $1 ]] && _usage
+  "$@"
+fi

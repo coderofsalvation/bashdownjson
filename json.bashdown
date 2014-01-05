@@ -1,0 +1,7 @@
+{    
+  "system": "$(uname -a)",
+  "date": "$(date -R)",
+  "items": [
+  $( $SELF_PATH/bashdownjson printitems $JSONNAME $JSONMAXITEMS)
+  ]
+}

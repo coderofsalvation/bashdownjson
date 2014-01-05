@@ -1,0 +1,5 @@
+{
+  "id"  : "$ID",
+  "date": "$DATE",
+  "data": $MESSAGE
+}
