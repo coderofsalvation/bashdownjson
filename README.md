@@ -10,7 +10,9 @@ Usage
     
       Usage: 
 
-        add:        echo '{"foo":"bar"}' | bashdownjson add your.json
+        add:        echo 'foo bar'       | bashdownjson add your.json
+                    echo '{"foo":"bar"}' | bashdownjson add your.json
+
         reset:      bashdownjson reset your.json
         print:      bashdownjson generate your.json [maxitems]
 
@@ -27,6 +29,30 @@ now with tail(f) you can easily monitor some (log)files etc:
 
     tailf /some/application/log.txt | grep "ERROR" | while read line do; echo "{\"msg\":\"$line\"}"done | ./bashdownjson add errors.json
 
+Example output
+==============
+
+The 'add' command in the Usage-example above, would eventually generate this output when './bashdownjson print your.json' would be called:
+
+    {    
+      "system": "Linux lemon 2.6.32-042stab076.5 #1 SMP Mon Mar 18 20:41:34 MSK 2013 x86_64 GNU/Linux",
+      "date": "Sun, 05 Jan 2014 16:56:49 +0100",
+      "items": [
+        {
+          "id"  : "1388937285",
+          "date": "Sun, 05 Jan 2014 16:54:45 +0100",
+          "data": {"text":"foo bar"}
+        }
+        ,
+        {
+          "id"  : "1388937305",
+          "date": "Sun, 05 Jan 2014 16:55:05 +0100",
+          "data": {"flop":"flap"}
+        }
+      ]
+    }
+
+
 This is just a simple example but you'll get the point I guess :)
 
 Requirements
@@ -38,7 +64,3 @@ Credits
 =======
 
 * [bash(down) template 'engine'](https://github.com/coderofsalvation/bashdown)
-
-Todo
-====
-* bashdownjson automatically detect jsonstring or textstring upon 'add'

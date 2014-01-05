@@ -43,6 +43,7 @@ printitems(){
 add(){
   jsonname="$1"; title="$2"; link="$3"; dir="$TMPFILE.$jsonname"; file="$dir/$(date +%s).bash"
   message="$(cat - )"
+  [[ "$message" =~ "{" ]] || message="{\"text\":\"${message/\"/\'}\"}"
   [[ ! -d "$dir" ]] && mkdir "$dir"
   echo "MESSAGE='$message'" > "$file"
   echo "DATE='$(date -R)'"  >> "$file"
@@ -66,6 +67,7 @@ _usage(){
   txt='Usage: 
 
   add:        echo '{"foo":"bar"}' | bashdownjson your.json
+              echo 'foo bar'       | bashdownjson your.json
   feeds:      lists all active feeds 
   reset:      bashdownjson reset [your.json]
   print:      bashdownjson print your.json [maxitems]
