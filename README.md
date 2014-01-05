@@ -27,7 +27,7 @@ put this into your crontab to generate the feed hourly (feel free to modify) wit
 
 now with tail(f) you can easily monitor some (log)files etc:
 
-    tailf /some/application/log.txt | grep "ERROR" | while read line do; echo "{\"msg\":\"$line\"}"done | ./bashdownjson add errors.json
+    tailf /some/application/log.txt | grep "ERROR" | ./bashdownjson add errors.json
 
 Example output
 ==============
